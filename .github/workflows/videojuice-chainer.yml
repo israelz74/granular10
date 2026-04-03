@@ -1,0 +1,67 @@
+name: VideoJuice Chainer
+
+on:
+  workflow_dispatch:
+    inputs:
+      chainer_url:
+        description: "apiJobChainerHandler URL (leave blank to use secret VIDEOJUICE_CHAINER_URL)"
+        required: false
+        type: string
+      platform_user:
+        description: "Value for x-platform-user"
+        required: true
+        default: "github-actions-chainer"
+        type: string
+      interval_seconds:
+        description: "Seconds between chainer ticks"
+        required: true
+        default: "20"
+        type: string
+      duration_seconds:
+        description: "Total duration for the loop (0 = single call)"
+        required: true
+        default: "290"
+        type: string
+
+  schedule:
+    - cron: "*/5 * * * *"
+
+concurrency:
+  group: videojuice-chainer
+  cancel-in-progress: false
+
+jobs:
+  run-chainer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r videojuice-chainer/requirements.txt
+
+      - name: Run chainer loop
+        env:
+          CHAINER_URL: ${{ inputs.chainer_url }}
+          CHAINER_URL_SECRET: ${{ secrets.VIDEOJUICE_CHAINER_URL }}
+          PLATFORM_SECRET: ${{ secrets.VIDEOJUICE_PLATFORM_SECRET }}
+          PLATFORM_USER: ${{ inputs.platform_user || 'github-actions-chainer' }}
+          INTERVAL_SECONDS: ${{ inputs.interval_seconds || '20' }}
+          DURATION_SECONDS: ${{ inputs.duration_seconds || '290' }}
+          TIMEOUT_SECONDS: 30
+          LOG_DIR: logs
+        run: python videojuice-chainer/run_chainer_loop.py
+
+      - name: Upload logs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: videojuice-chainer-logs
+          path: logs/*.log
+          if-no-files-found: warn
+          retention-days: 7
