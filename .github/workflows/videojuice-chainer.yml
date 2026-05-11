@@ -53,7 +53,7 @@ jobs:
           PLATFORM_SECRET: ${{ secrets.VIDEOJUICE_PLATFORM_SECRET }}
           PLATFORM_USER: ${{ inputs.platform_user || 'github-actions-chainer' }}
           INTERVAL_SECONDS: ${{ inputs.interval_seconds || '20' }}
-          DURATION_SECONDS: ${{ inputs.duration_seconds || '290' }}
+          DURATION_SECONDS: ${{ inputs.duration_seconds || '270' }}
           TIMEOUT_SECONDS: 30
           LOG_DIR: logs
         run: python videojuice-chainer/run_chainer_loop.py
