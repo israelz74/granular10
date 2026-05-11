@@ -20,7 +20,7 @@ on:
       duration_seconds:
         description: "Total duration for the loop (0 = single call)"
         required: true
-        default: "290"
+        default: "270"
         type: string
 
   schedule:
